@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 )
@@ -64,16 +65,43 @@ func (s *APIServer) handleAccount(w http.ResponseWriter, r *http.Request) error 
 }
 
 func (s *APIServer) handleGetAccount(w http.ResponseWriter, r *http.Request) error {
-	vars := mux.Vars(r)["id"]
-	return WriteJSON(w, http.StatusOK, vars)
+	vars := mux.Vars(r)
+	accountID := vars["id"]
+	accountIDInt, err := strconv.Atoi(accountID)
+	if err != nil {
+		return err
+	}
+	account, err := s.store.GetAccount(accountIDInt)
+	if err != nil {
+		return err
+	}
+	return WriteJSON(w, http.StatusOK, account)
 }
 
 func (s *APIServer) handleCreateAccount(w http.ResponseWriter, r *http.Request) error {
-	return nil
+	createAccountRequest := new(CreateAccountRequest)
+	if err := json.NewDecoder(r.Body).Decode(createAccountRequest); err != nil {
+		return err
+	}
+	account := NewAccount(createAccountRequest.FirstName, createAccountRequest.LastName)
+	if err := s.store.CreateAccount(account); err != nil {
+		return err
+	}
+	return WriteJSON(w, http.StatusCreated, account)
 }
 
 func (s *APIServer) handleDeleteAccount(w http.ResponseWriter, r *http.Request) error {
-	return nil
+	vars := mux.Vars(r)
+	accountID := vars["id"]
+	accountIDInt, err := strconv.Atoi(accountID)
+	if err != nil {
+		return err
+	}
+	err = s.store.DeleteAccount(accountIDInt)
+	if err != nil {
+		return err
+	}
+	return WriteJSON(w, http.StatusOK, nil)
 }
 
 func (s *APIServer) handleTransfer(w http.ResponseWriter, r *http.Request) error {

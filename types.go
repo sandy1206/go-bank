@@ -18,3 +18,16 @@ func NewAccount(firstName, lastName string) *Account {
 		Number:    int64(rand.Intn(1000000000)),
 	}
 }
+
+type CreateAccountRequest struct {
+	FirstName string `json:"firstName"`
+	LastName  string `json:"lastName"`
+}
+
+type GetAccountRequest struct {
+	id int `json:"id"`
+}
+
+type DeleteAccountRequest struct {
+	Id string `json:"id"`
+}
