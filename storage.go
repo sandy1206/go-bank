@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 
 	_ "github.com/lib/pq"
 )
@@ -53,7 +54,8 @@ func (s *PostgresStore) GetAccount(id int) (*Account, error) {
 }
 
 func (s *PostgresStore) DeleteAccount(id int) error {
-	_, err := s.db.Exec("DELETE FROM accounts WHERE id = $1", id)
+	what, err := s.db.Exec("DELETE FROM accounts WHERE id = $1", id)
+	fmt.Println("what", what, err)
 	return err
 }
 
